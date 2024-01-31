@@ -1,7 +1,9 @@
-import 'package:crud_firebase/todo_controller.dart';
+import 'package:crud_firebase/Page/sidebar.dart';
+import 'package:crud_firebase/Page/component.dart';
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
+import 'package:crud_firebase/todo_controller.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -11,149 +13,89 @@ class HomePage extends StatelessWidget {
     TodoController todoController = Get.put(TodoController());
 
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
-        title: const Text("CRUD FIREBASE"),
-        backgroundColor: Colors.deepPurple,
+        title: const Text("Notes", style: TextStyle(color: Colors.white)),
+        backgroundColor: Color(0xFF1B1B1B),
+        leading: IconButton(
+          icon: Icon(Icons.menu, color: Colors.white),
+          onPressed: () {
+            scaffoldKey.currentState!.openDrawer();
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search, color: Colors.white),
+            onPressed: () {},
+          ),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(15),
+      drawer: Sidebar(),
+      body: Container(
+        color: Color(0xFF1B1B1B),
+        padding: const EdgeInsets.all(10),
         child: Column(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: todoController.title,
-                    decoration: const InputDecoration(
-                      fillColor: Colors.white,
-                      filled: true,
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                InkWell(
-                  onTap: () {
-                    todoController.addTodo();
-                  },
-                  child: Container(
-                    height: 45,
-                    width: 45,
-                    decoration: BoxDecoration(
-                      color: Colors.deepPurple,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(
-                      Icons.done,
-                      color: Colors.white,
-                    ),
-                  ),
-                )
-              ],
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            const Row(
-              children: [Text("ALL NOTES")],
-            ),
-            const SizedBox(
-              height: 10,
-            ),
             Expanded(
               child: Obx(
                 () => ListView(
                   children: todoController.todoList
-                      .map((e) => Padding(
-                            padding: const EdgeInsets.all(8),
+                      .map(
+                        (e) => Padding(
+                          padding: const EdgeInsets.all(5),
+                          child: Card(
+                            elevation: 3,
+                            color: Color(0xFF222222),
                             child: ListTile(
-                              tileColor: Colors.white,
                               onTap: () {},
-                              title: Text(e.title!),
+                              title: Text(
+                                e.title!,
+                                style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    color: Color(0xFFD5EFF2),
+                                ),
+                              ),
+                              subtitle: Text(e.description!,
+                                  style: TextStyle(color: Color(0xFFA8BCBF))),
                               trailing: SizedBox(
-                                  width: 100,
-                                  child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        InkWell(
-                                            onTap: () {
-                                              todoController.deleteTodo(e.id!);
-                                            },
-                                            child: Icon(Icons.delete)),
-                                        SizedBox(width: 10),
-                                        InkWell(
-                                          onTap: () {
-                                            todoController.updatedTitle.text =
-                                                e.title!;
-                                            Get.defaultDialog(
-                                              title: "UPDATE TODO",
-                                              content: StatefulBuilder(
-                                                builder: (BuildContext context,
-                                                    StateSetter setState) {
-                                                  return Container(
-                                                    height: 100,
-                                                    child: Row(
-                                                      children: [
-                                                        Expanded(
-                                                          child: TextFormField(
-                                                            controller:
-                                                                todoController
-                                                                    .updatedTitle,
-                                                            decoration:
-                                                                const InputDecoration(
-                                                              fillColor:
-                                                                  Colors.white,
-                                                              filled: true,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        const SizedBox(
-                                                          width: 10,
-                                                        ),
-                                                        InkWell(
-                                                          onTap: () {
-                                                            todoController
-                                                                .updateTodo(e);
-                                                            Get.back();
-                                                          },
-                                                          child: Container(
-                                                            height: 45,
-                                                            width: 45,
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color: Colors
-                                                                  .deepPurple,
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          10),
-                                                            ),
-                                                            child: const Icon(
-                                                              Icons.done,
-                                                              color:
-                                                                  Colors.white,
-                                                            ),
-                                                          ),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                            );
-                                          },
-                                          child: Icon(Icons.edit),
-                                        )
-                                      ])),
+                                width: 120,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    InkWell(
+                                      onTap: () {
+                                        todoController.deleteTodo(e.id!);
+                                      },
+                                      child: const Icon(Icons.delete),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    InkWell(
+                                      onTap: () {
+                                        Component.showAddTodoBottomSheet(
+                                            context, todoController);
+                                      },
+                                      child: const Icon(Icons.edit),
+                                    )
+                                  ],
+                                ),
+                              ),
                             ),
-                          ))
+                          ),
+                        ),
+                      )
                       .toList(),
                 ),
               ),
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Component.showAddTodoBottomSheet(context, todoController);
+        },
+        backgroundColor: Colors.blue,
+        child: const Icon(Icons.add),
       ),
     );
   }
