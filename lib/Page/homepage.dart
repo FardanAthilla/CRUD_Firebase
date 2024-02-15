@@ -1,5 +1,8 @@
+import 'package:crud_firebase/Page/DetailPage.dart';
+import 'package:crud_firebase/Page/SearchPage.dart';
 import 'package:crud_firebase/Page/sidebar.dart';
 import 'package:crud_firebase/Page/component.dart';
+import 'package:crud_firebase/color.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:crud_firebase/todo_controller.dart';
@@ -15,87 +18,139 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       key: scaffoldKey,
       appBar: AppBar(
-        title: const Text("Notes", style: TextStyle(color: Colors.white)),
-        backgroundColor: Color(0xFF1B1B1B),
+        title: Text(
+          "Notes",
+          style: TextStyle(
+            color: Warna.white,
+            fontSize: 20.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Warna.background,
+        foregroundColor: Warna.white,
         leading: IconButton(
-          icon: Icon(Icons.menu, color: Colors.white),
+          icon: Icon(Icons.menu, color: Warna.white),
           onPressed: () {
             scaffoldKey.currentState!.openDrawer();
           },
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.search, color: Colors.white),
-            onPressed: () {},
+            icon: Icon(Icons.search, color: Warna.white),
+            onPressed: () {
+              Get.to(SearchPage(controller: TodoController()));
+            },
           ),
         ],
       ),
       drawer: Sidebar(),
       body: Container(
-        color: Color(0xFF1B1B1B),
+        color: Warna.background,
         padding: const EdgeInsets.all(10),
         child: Column(
           children: [
             Expanded(
               child: Obx(
-                () => ListView(
-                  children: todoController.todoList
-                      .map(
-                        (e) => Padding(
-                          padding: const EdgeInsets.all(5),
-                          child: Card(
-                            elevation: 3,
-                            color: Color(0xFF222222),
-                            child: ListTile(
-                              onTap: () {},
-                              title: Text(
-                                e.title!,
-                                style: GoogleFonts.poppins(
-                                    fontSize: 16,
-                                    color: Color(0xFFD5EFF2),
+                () {
+                  if (todoController.isLoading.value) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (todoController.todoList.isEmpty) {
+                    return Center(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: Image.asset(
+                          'Assets/nodata.png',
+                          width: 200,
+                          height: 200,
+                        ),
+                      ),
+                    );
+                  } else {
+                    return ListView(
+                      children: todoController.todoList
+                          .map(
+                            (e) => Padding(
+                              padding: const EdgeInsets.all(5),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Warna.card,
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
-                              ),
-                              subtitle: Text(e.description!,
-                                  style: TextStyle(color: Color(0xFFA8BCBF))),
-                              trailing: SizedBox(
-                                width: 120,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    InkWell(
-                                      onTap: () {
-                                        todoController.deleteTodo(e.id!);
-                                      },
-                                      child: const Icon(Icons.delete),
+                                child: ListTile(
+                                  onTap: () {
+                                    Get.to(() => DetailPage(todo: e));
+                                  },
+                                  title: Padding(
+                                    padding: EdgeInsets.only(bottom: 8.0),
+                                    child: Text(
+                                      e.title!,
+                                      style: GoogleFonts.roboto(
+                                          fontSize: 18,
+                                          color: Warna.white,
+                                          fontWeight: FontWeight.bold),
                                     ),
-                                    const SizedBox(width: 10),
-                                    InkWell(
-                                      onTap: () {
-                                        Component.showAddTodoBottomSheet(
-                                            context, todoController);
-                                      },
-                                      child: const Icon(Icons.edit),
-                                    )
-                                  ],
+                                  ),
+                                  subtitle: Text(
+                                    e.description!,
+                                    style: GoogleFonts.roboto(
+                                      fontSize: 14,
+                                      color: Warna.white,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                ),
+                          )
+                          .toList(),
+                    );
+                  }
+                },
               ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Component.showAddTodoBottomSheet(context, todoController);
-        },
-        backgroundColor: Colors.blue,
-        child: const Icon(Icons.add),
+      bottomNavigationBar: Container(
+        color: Warna.carddark,
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        child: IconTheme(
+          data: IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
+          child: Row(
+            children: <Widget>[
+              IconButton(
+                tooltip: 'Checkbox',
+                color: Warna.white,
+                icon: const Icon(Icons.check_box_outlined),
+                onPressed: () {},
+              ),
+              IconButton(
+                tooltip: 'Image',
+                color: Warna.white,
+                icon: const Icon(Icons.image_outlined),
+                onPressed: () {},
+              ),
+              IconButton(
+                tooltip: 'Share',
+                color: Warna.white,
+                icon: const Icon(Icons.people_alt_outlined),
+                onPressed: () {},
+              ),
+              const Spacer(),
+              IconButton(
+                tooltip: 'Add Data',
+                color: Warna.main,
+                icon: const Icon(Icons.add),
+                onPressed: () {
+                  Component.showAddTodoBottomSheet(context, todoController);
+                },
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
