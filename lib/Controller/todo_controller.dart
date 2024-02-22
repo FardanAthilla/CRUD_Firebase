@@ -1,4 +1,4 @@
-import 'package:crud_firebase/todo_model.dart';
+import 'package:crud_firebase/Model/todo_model.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -22,12 +22,13 @@ class TodoController extends GetxController {
     getTodo();
   }
 
-Future<void> addTodo() async {
+  Future<void> addTodo() async {
     String id = uId.v4();
     var newTodo = TodoModel(
       id: id,
       title: title.text,
       description: description.text,
+      isArchive: false,
       createdAt: Timestamp.now(),
     );
     await db.collection("todo").doc(id).set(newTodo.toJson());
@@ -37,25 +38,46 @@ Future<void> addTodo() async {
     print("Todo added to Database");
   }
 
+  Future<void> getTodo() async {
+    todoList.clear();
+    await db
+        .collection("todo")
+        .orderBy("createdAt", descending: true)
+        .get()
+        .then((allTodo) {
+      for (var todo in allTodo.docs) {
+        todoList.add(
+          TodoModel.fromJson(
+            todo.data(),
+          ),
+        );
+      }
+    });
+    isLoading.value = false;
+    print("Get Todo");
+  }
 
-Future<void> getTodo() async {
-  todoList.clear();
-  await db.collection("todo")
-      .orderBy("createdAt", descending: true) 
-      .get()
-      .then((allTodo) {
-    for (var todo in allTodo.docs) {
-      todoList.add(
-        TodoModel.fromJson(
-          todo.data(),
-        ),
-      );
+  Future<void> archiveTodo(String id) async {
+    try {
+      var todo = todoList.firstWhere((todo) => todo.id == id);
+      todo.isArchive = true;
+      await db.collection("todo").doc(id).update({'isArchive': true});
+      print("Todo Archived");
+    } catch (e) {
+      print("Error archiving todo: $e");
     }
-  });
-  isLoading.value = false;
-  print("Get Todo");
-}
+  }
 
+  Future<void> unarchiveTodo(String id) async {
+    try {
+      var todo = todoList.firstWhere((todo) => todo.id == id);
+      todo.isArchive = false;
+      await db.collection("todo").doc(id).update({'isArchive': false});
+      print("Todo Unarchived");
+    } catch (e) {
+      print("Error unarchiving todo: $e");
+    }
+  }
 
   Future<void> deleteTodo(String id) async {
     await db.collection("todo").doc(id).delete();
@@ -63,13 +85,14 @@ Future<void> getTodo() async {
     getTodo();
   }
 
-  Future<void> updateTodo(
-      String id, String updatedTitle, String updatedDescription, Timestamp createdAt) async {
+  Future<void> updateTodo(String id, String updatedTitle,
+      String updatedDescription, Timestamp createdAt) async {
     try {
       var updatedTodo = TodoModel(
         id: id,
         title: updatedTitle,
         description: updatedDescription,
+        isArchive: false,
         createdAt: createdAt,
       );
 

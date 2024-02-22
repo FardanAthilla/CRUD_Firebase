@@ -5,52 +5,25 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class SearchPage extends StatefulWidget {
-  final TodoController controller;
-
-  const SearchPage({Key? key, required this.controller}) : super(key: key);
-
-  @override
-  _SearchPageState createState() => _SearchPageState();
-}
-
-class _SearchPageState extends State<SearchPage> {
-  TextEditingController searchController = TextEditingController();
+class ArchivedPage extends StatelessWidget {
+  const ArchivedPage({Key? key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Warna.card,
-        foregroundColor: Warna.white,
-        title: TextField(
-          controller: searchController,
-          style: TextStyle(color: Warna.white),
-          decoration: InputDecoration(
-            hintText: 'Search Your Notes',
-            hintStyle: TextStyle(color: Warna.semiwhite),
-            border: InputBorder.none,
-          ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              if (searchController.text.isNotEmpty) {
-                widget.controller.searchTodo(searchController.text);
-              }
-            },
-            icon: Icon(Icons.search),
-          ),
-        ],
-      ),
-      body: Container(
-        color: Warna.background,
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          children: [
-            Expanded(
-              child: Obx(() {
-                if (widget.controller.todoList.isEmpty) {
+    TodoController todoController = Get.put(TodoController());
+    return Container(
+      color: Warna.background,
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        children: [
+          Expanded(
+            child: Obx(
+              () {
+                if (todoController.isLoading.value) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (todoController.todoList.isEmpty) {
                   return Center(
                     child: Container(
                       decoration: BoxDecoration(
@@ -65,7 +38,8 @@ class _SearchPageState extends State<SearchPage> {
                   );
                 } else {
                   return ListView(
-                    children: widget.controller.todoList
+                    children: todoController.todoList
+                        .where((e) => e.isArchive != false)
                         .map(
                           (e) => Padding(
                             padding: const EdgeInsets.all(5),
@@ -78,16 +52,26 @@ class _SearchPageState extends State<SearchPage> {
                                 onTap: () {
                                   Get.to(() => DetailPage(todo: e));
                                 },
-                                title: Padding(
-                                  padding: EdgeInsets.only(bottom: 8.0),
-                                  child: Text(
-                                    e.title!,
-                                    style: GoogleFonts.roboto(
-                                      fontSize: 18,
-                                      color: Warna.white,
-                                      fontWeight: FontWeight.bold,
+                                title: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      e.title!,
+                                      style: GoogleFonts.roboto(
+                                        fontSize: 18,
+                                        color: Warna.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
+                                    Text(
+                                      'Archived',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 subtitle: Text(
                                   e.description!,
@@ -103,10 +87,10 @@ class _SearchPageState extends State<SearchPage> {
                         .toList(),
                   );
                 }
-              }),
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -1,6 +1,6 @@
+import 'package:crud_firebase/Page/Navigation/Navigation.dart';
 import 'package:crud_firebase/color.dart';
 import 'package:crud_firebase/firebase/firebase_options.dart';
-import 'package:crud_firebase/Page/homepage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       home: const SafeArea(
-        child: HomePage(),
+        child: Navigation(),
       ),
     );
   }

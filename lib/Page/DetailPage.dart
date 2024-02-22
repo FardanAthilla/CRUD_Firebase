@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:crud_firebase/Page/homepage.dart';
+import 'package:crud_firebase/Page/Navigation/Navigation.dart';
 import 'package:crud_firebase/color.dart';
-import 'package:crud_firebase/todo_controller.dart';
+import 'package:crud_firebase/Controller/todo_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:crud_firebase/todo_model.dart';
+import 'package:crud_firebase/Model/todo_model.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
@@ -127,10 +127,34 @@ class DetailPage extends StatelessWidget {
               child: Row(
                 children: <Widget>[
                   IconButton(
-                    tooltip: 'Pin',
+                    tooltip: todo.isArchive != null && todo.isArchive!
+                        ? 'Unarchive'
+                        : 'Archive',
                     color: Warna.white,
-                    icon: const Icon(Icons.push_pin),
-                    onPressed: () {},
+                    icon: Icon(
+                      todo.isArchive != null && todo.isArchive!
+                          ? Icons.unarchive_outlined
+                          : Icons.archive_outlined,
+                    ),
+                    onPressed: () async {
+                      String message = '';
+                      if (todo.isArchive != null && todo.isArchive!) {
+                        await todoController.unarchiveTodo(todo.id!);
+                        await todoController.getTodo();
+                        message = 'Note has been unarchived';
+                      } else {
+                        await todoController.archiveTodo(todo.id!);
+                        await todoController.getTodo();
+                        message = 'Note has been archived';
+                      }
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(message),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                      Get.back();
+                    },
                   ),
                   IconButton(
                     tooltip: 'Image',
@@ -202,7 +226,7 @@ class DetailPage extends StatelessWidget {
                             onPressed: () {
                               Get.back();
                               todoController.deleteTodo(todo.id!);
-                              Get.off(HomePage());
+                              Get.off(Navigation());
                             },
                             child: const Text('Delete'),
                           ),
