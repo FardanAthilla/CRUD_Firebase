@@ -6,8 +6,9 @@ class TodoModel {
   String? description;
   bool? isArchive;
   Timestamp? createdAt;
+  String? imageUrl;
 
-  TodoModel({this.id, this.title, this.description, this.isArchive, this.createdAt});
+  TodoModel({this.id, this.title, this.description, this.isArchive, this.createdAt, this.imageUrl});
 
   TodoModel.fromJson(Map<String, dynamic> json) {
     id = json["id"];
@@ -15,6 +16,7 @@ class TodoModel {
     description = json["description"];
     isArchive = json["isArchive"];
     createdAt = json["createdAt"] as Timestamp;
+    imageUrl = json["imageUrl"];
   }
 
   Map<String, dynamic> toJson() {
@@ -24,6 +26,7 @@ class TodoModel {
     data["description"] = description;
     data["isArchive"] = isArchive;
     data["createdAt"] = createdAt;
+    data["imageUrl"] = imageUrl;
     return data;
   }
 }
