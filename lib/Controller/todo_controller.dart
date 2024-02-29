@@ -97,7 +97,8 @@ class TodoController extends GetxController {
 
       var existingTodoSnapshot = await db.collection("todo").doc(id).get();
       var existingTodoData = existingTodoSnapshot.data();
-      if (existingTodoData != null && existingTodoData.containsKey('isArchive')) {
+      if (existingTodoData != null &&
+          existingTodoData.containsKey('isArchive')) {
         var existingIsArchive = existingTodoData['isArchive'];
 
         if (existingIsArchive != null) {
@@ -114,7 +115,6 @@ class TodoController extends GetxController {
       print("Error updating todo: $e");
     }
   }
-
 
   Future<void> searchTodo(String query) async {
     todoList.clear();
